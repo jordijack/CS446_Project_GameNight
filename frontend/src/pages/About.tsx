@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
 
-const TECH = ['React', 'Vite', 'React Router', 'Tailwind CSS', 'daisyUI', 'Zustand', 'TanStack Query', 'Express', 'Prisma ORM', 'PostgreSQL', 'Zod', 'Figma']
+const TECH = ['React', 'Vite', 'React Router', 'Tailwind CSS', 'daisyUI', 'Zustand', 'TanStack Query', 'Express', 'AWS Lambda', 'DynamoDB', 'API Gateway', 'Amplify', 'Zod', 'Figma']
 
 const PAGES = [
   ['Store', 'ค้นหา กรองตามแนวและแพลตฟอร์ม เรียงลำดับ และแบ่งหน้า'],
@@ -67,9 +67,9 @@ export default function About() {
         </Card>
         <Card title="แหล่งข้อมูล">
           <ul className="list-disc space-y-1.5 pl-5 leading-7 text-sub">
-            <li>Backend RESTful API ที่พัฒนาเอง (Express 5)</li>
-            <li>Prisma ORM + PostgreSQL เก็บเกม แนวเกม แพลตฟอร์ม บริษัท ราคา และคอลเลกชัน</li>
-            <li>ข้อมูลตัวอย่างใส่ด้วย prisma/seed.ts</li>
+            <li>Backend RESTful API ที่พัฒนาเอง (Express 5 บน AWS Lambda ผ่าน API Gateway)</li>
+            <li>Amazon DynamoDB เก็บเกม แนวเกม แพลตฟอร์ม บริษัท ราคา และคอลเลกชัน</li>
+            <li>ข้อมูลตัวอย่างใส่ด้วย serverless/scripts/seed.ts</li>
           </ul>
         </Card>
       </div>

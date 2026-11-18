@@ -189,3 +189,25 @@ export function errorText(error: unknown): string {
   if (status && status >= 500) return 'เซิร์ฟเวอร์ขัดข้อง ลองใหม่อีกครั้ง'
   return 'เชื่อมต่อ Backend API ไม่ได้ ตรวจสอบว่าเปิดเซิร์ฟเวอร์แล้ว (npm run dev)'
 }
+
+// ---------- แจ้งเตือนเกมใน Wishlist ลดราคา (SNS อีเมล) ----------
+
+export type AlertStatus = 'none' | 'pending' | 'confirmed'
+export interface AlertState {
+  email: string
+  status: AlertStatus
+}
+
+export async function getAlerts(): Promise<AlertState> {
+  const { data } = await client.get<AlertState>('/alerts')
+  return data
+}
+
+export async function subscribeAlerts(): Promise<AlertState> {
+  const { data } = await client.post<AlertState>('/alerts')
+  return data
+}
+
+export async function unsubscribeAlerts(): Promise<void> {
+  await client.delete('/alerts')
+}

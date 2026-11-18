@@ -1,5 +1,5 @@
 import { useState, type ReactNode } from 'react'
-import type { UseQueryResult } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient, type UseQueryResult } from '@tanstack/react-query'
 import { Link, useSearchParams } from 'react-router'
 import { useGameList, usePrices } from '../hooks/queries'
 import { priceFor } from '../services/priceApi'
@@ -10,6 +10,8 @@ import { baht, formatDate, genreText } from '../utils/format'
 import { CartIcon, TrashIcon } from '../components/Icons'
 import { EmptyState, GameCover, InlineError, LinkButton, PriceTag, StarRating, btn, selectCls } from '../components/ui'
 import type { GameDetail, PriceMap } from '../types/api'
+import * as api from '../services/api'
+import { toast } from '../store/toastStore'
 
 type GameQuery = UseQueryResult<GameDetail>
 type StatusFilter = 'all' | PlayStatus
@@ -108,7 +110,8 @@ function CollectionContent() {
       </div>
 
       {tab === 'wishlist' ? (
-        <section id="panel-wishlist" role="tabpanel" aria-labelledby="tab-wishlist">
+        <section id="panel-wishlist" role="tabpanel" aria-labelledby="tab-wishlist" className="flex flex-col gap-4">
+          <DealAlerts />
           {wishlist.length === 0 ? (
             <EmptyState
               title="ยังไม่มีเกมใน Wishlist"
@@ -296,3 +299,49 @@ const IconDelete = ({ label, onClick }: { label: string; onClick: () => void }) 
     <TrashIcon className="h-5 w-5" />
   </button>
 )
+
+/** สมัคร/ยกเลิกรับอีเมลเมื่อเกมใน Wishlist ลดราคา (Lambda gamenight-deals ตรวจทุก 1 ชั่วโมง ส่งผ่าน SNS) */
+function DealAlerts() {
+  const qc = useQueryClient()
+  const q = useQuery({ queryKey: ['alerts'], queryFn: api.getAlerts })
+  const onError = (e: unknown) => toast(`บันทึกไม่สำเร็จ: ${api.errorText(e)}`)
+  const sub = useMutation({
+    mutationFn: api.subscribeAlerts,
+    onSuccess: (data) => qc.setQueryData(['alerts'], data),
+    onError,
+  })
+  const unsub = useMutation({
+    mutationFn: api.unsubscribeAlerts,
+    onSuccess: () => qc.setQueryData(['alerts'], (old: api.AlertState | undefined) => old && { ...old, status: 'none' }),
+    onError,
+  })
+  if (q.isPending || q.isError) return null
+  const { status, email } = q.data
+  const busy = sub.isPending || unsub.isPending
+  const text: Record<api.AlertStatus, string> = {
+    none: 'รับอีเมลแจ้งเตือนเมื่อเกมใน Wishlist ลดราคา (ตรวจทุก 1 ชั่วโมง)',
+    pending: `ส่งอีเมลยืนยันไปที่ ${email} แล้ว กดลิงก์ "Confirm subscription" ในอีเมลเพื่อเริ่มรับแจ้งเตือน`,
+    confirmed: `เปิดแจ้งเตือนเกมลดราคาแล้ว ส่งไปที่ ${email}`,
+  }
+  return (
+    <div className="flex flex-wrap items-center justify-between gap-3 rounded-box bg-base-200 px-4 py-3">
+      <p className="text-sm text-sub">{text[status]}</p>
+      <div className="flex gap-2">
+        {status === 'pending' && (
+          <button type="button" className={btn.ghost} disabled={busy} onClick={() => q.refetch()}>
+            ยืนยันแล้ว
+          </button>
+        )}
+        {status === 'none' ? (
+          <button type="button" className={btn.outline} disabled={busy} onClick={() => sub.mutate()}>
+            เปิดแจ้งเตือนลดราคา
+          </button>
+        ) : (
+          <button type="button" className={btn.ghost} disabled={busy} onClick={() => unsub.mutate()}>
+            ยกเลิกแจ้งเตือน
+          </button>
+        )}
+      </div>
+    </div>
+  )
+}
