@@ -1,8 +1,9 @@
 // bundle Lambda ทั้ง 2 ตัวเป็นไฟล์เดียวด้วย esbuild แล้ว zip ไว้ใน dist/
 // AWS SDK v3 มีอยู่แล้วใน runtime nodejs22.x จึงไม่ต้อง bundle เข้าไป
+// แล้วคัดลอก zip ไปไว้ที่ aws-deploy/lambda/ (commit ไว้ใน repo ให้ทั้งห้องดาวน์โหลดจาก GitHub ได้โดยไม่ต้อง build เอง)
 import { build } from 'esbuild'
 import { execFileSync } from 'node:child_process'
-import { mkdirSync, rmSync } from 'node:fs'
+import { copyFileSync, mkdirSync, rmSync } from 'node:fs'
 
 rmSync('dist', { recursive: true, force: true })
 for (const name of ['api', 'deals']) {
@@ -21,5 +22,7 @@ for (const name of ['api', 'deals']) {
   })
   mkdirSync('dist', { recursive: true })
   execFileSync('python', ['-c', `import zipfile;z=zipfile.ZipFile('dist/${name}.zip','w',zipfile.ZIP_DEFLATED);z.write('dist/${name}/index.mjs','index.mjs');z.close()`])
-  console.log(`dist/${name}.zip`)
+  mkdirSync('../lambda', { recursive: true })
+  copyFileSync(`dist/${name}.zip`, `../lambda/${name}.zip`)
+  console.log(`dist/${name}.zip -> aws-deploy/lambda/${name}.zip`)
 }

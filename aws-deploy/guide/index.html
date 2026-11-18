@@ -146,15 +146,22 @@ figcaption{font-size:14px;color:var(--muted)}
 
 <section class="card" id="prep">
   <h2><span class="num">0</span>เตรียมตัวและเตรียมไฟล์</h2>
+  <div class="note ok"><span class="t">ใช้แค่เบราว์เซอร์</span>ทุกขั้นทำผ่านหน้าเว็บ AWS Console และ GitHub ไม่ต้องติดตั้ง Node.js, Git หรือ AWS CLI จึงใช้เครื่องใหม่หรือเครื่องในห้องแล็บได้ ต้องมีแค่บัญชี AWS Academy และบัญชี <a href="https://github.com/signup" target="_blank" rel="noopener">GitHub</a> (ฟรี)</div>
   <ol class="steps">
     <li>เข้า AWS Academy → Learner Lab → กด <b>Start Lab</b> รอจนจุดหน้าคำว่า AWS เป็น<b>สีเขียว</b> แล้วคลิก <b>AWS</b> เพื่อเปิด Console</li>
     <li>มุมขวาบนของ Console ตรวจว่า Region เป็น <b>N. Virginia (us-east-1)</b> ทุกขั้นตอนต้องอยู่ region นี้</li>
-    <li>ในเครื่อง ติดตั้ง <b>Node.js 22</b> แล้ว build โค้ด Lambda ทั้ง 2 ตัว (โฟลเดอร์ <code>aws-deploy/serverless</code>)</li>
+    <li>ดาวน์โหลดไฟล์ 3 ไฟล์ (คลิกแล้วได้ไฟล์ทันที เก็บไว้ในโฟลเดอร์ Downloads)
+      <div class="table" style="margin-top:8px"><table>
+        <thead><tr><th>ไฟล์</th><th>ใช้ในขั้น</th><th>คืออะไร</th></tr></thead>
+        <tbody>
+          <tr><td><a href="https://github.com/jordijack/CS446_Project_GameNight/raw/main/aws-deploy/lambda/api.zip"><code>api.zip</code></a></td><td>4</td><td>โค้ด Lambda <code>gamenight-api</code> ที่ build แล้ว</td></tr>
+          <tr><td><a href="https://github.com/jordijack/CS446_Project_GameNight/raw/main/aws-deploy/lambda/deals.zip"><code>deals.zip</code></a></td><td>5</td><td>โค้ด Lambda <code>gamenight-deals</code> ที่ build แล้ว</td></tr>
+          <tr><td><a href="https://github.com/jordijack/CS446_Project_GameNight/raw/main/aws-deploy/serverless/config.json"><code>config.json</code></a></td><td>2</td><td>เกณฑ์ส่วนลดขั้นต่ำ</td></tr>
+        </tbody>
+      </table></div>
+    </li>
+    <li>ล็อกอิน GitHub แล้วเปิด <a href="https://github.com/jordijack/CS446_Project_GameNight" target="_blank" rel="noopener">repo ของโปรเจกต์</a> → ปุ่ม <b>Fork</b> มุมขวาบน → <b>Create fork</b> จะได้ repo ของตัวเองไว้ให้ Amplify ดึงไป build ในขั้น 8 (กลุ่มละ 1 fork ก็พอ)</li>
   </ol>
-  <div class="code"><div class="bar"><span>Terminal · build Lambda</span><button class="copy" type="button">Copy</button></div><pre>cd aws-deploy/serverless
-npm install
-npm run build
-# ได้ไฟล์ dist/api.zip (Lambda gamenight-api) และ dist/deals.zip (Lambda gamenight-deals)</pre></div>
   <div class="note"><span class="t">จดไว้ใน Notepad</span>ระหว่างทำจะได้ค่าที่ต้องใช้ข้ามขั้นตอน 4 ค่า: <b>Topic ARN</b> (ขั้น 1), <b>ชื่อ Bucket</b> (ขั้น 2), <b>Invoke URL</b> ของ API (ขั้น 6) และ <b>โดเมน Amplify</b> (ขั้น 8)</div>
 </section>
 
@@ -181,7 +188,7 @@ npm run build
       <dl class="kv"><dt>Bucket type</dt><dd>General purpose</dd><dt>Bucket name</dt><dd><code>gamenight-config-ชื่อกลุ่ม</code> (ตัวพิมพ์เล็กทั้งหมด ห้ามซ้ำกับคนอื่นทั่วโลก)</dd><dt>Block all Public Access</dt><dd>ติ๊กไว้เหมือนเดิม (bucket นี้ไม่ต้องเปิด public)</dd></dl>
     </li>
     <li>เลื่อนลงล่างสุดคลิก <b>Create bucket</b> แล้วจดชื่อ bucket ไว้</li>
-    <li>คลิกเข้า bucket → <b>Upload</b> → <b>Add files</b> เลือกไฟล์ <code>config.json</code> ที่มีเนื้อหาด้านล่าง → <b>Upload</b></li>
+    <li>คลิกเข้า bucket → <b>Upload</b> → <b>Add files</b> เลือกไฟล์ <code>config.json</code> ที่ดาวน์โหลดในขั้น 0 (เนื้อหาตามด้านล่าง) → <b>Upload</b></li>
   </ol>
   <div class="code"><div class="bar"><span>config.json</span><button class="copy" type="button">Copy</button></div><pre>{ "minDiscountPercent": 10 }</pre></div>
   <p class="sub">เกมต้องลดราคาอย่างน้อย 10% ถึงจะส่งอีเมล แก้เลขในไฟล์นี้แล้วอัปโหลดทับได้โดยไม่ต้องแก้โค้ด โฟลเดอร์ <code>logs/</code> Lambda จะสร้างให้เองตอนรันครั้งแรก</p>
@@ -223,9 +230,9 @@ npm run build
     </li>
     <li><b>จุดสำคัญของ Learner Lab:</b> เปิดส่วน <b>Change default execution role</b> → เลือก <b>Use an existing role</b> → ช่อง Existing role เลือก <code>LabRole</code></li>
     <li>คลิก <b>Create function</b></li>
-    <li>แท็บ <b>Code</b> → ปุ่ม <b>Upload from</b> → <b>.zip file</b> → เลือก <code>serverless/dist/api.zip</code> → <b>Save</b></li>
+    <li>แท็บ <b>Code</b> → ปุ่ม <b>Upload from</b> → <b>.zip file</b> → เลือก <code>api.zip</code> ที่ดาวน์โหลดในขั้น 0 → <b>Save</b></li>
     <li>เลื่อนลงที่ <b>Runtime settings</b> → <b>Edit</b> → ตรวจว่า Handler เป็น <code>index.handler</code></li>
-    <li>แท็บ <b>Configuration</b> → <b>General configuration</b> → <b>Edit</b>: Memory <code>512</code> MB, Timeout <code>0 min 15 sec</code> → <b>Save</b></li>
+    <li>แท็บ <b>Configuration</b> → <b>General configuration</b> → <b>Edit</b>: Memory <code>512</code> MB, Timeout <code>0 min 30 sec</code> → <b>Save</b></li>
     <li>แท็บ <b>Configuration</b> → <b>Environment variables</b> → <b>Edit</b> → <b>Add environment variable</b> 3 แถว → <b>Save</b>
       <div class="table" style="margin-top:8px"><table>
         <thead><tr><th>#</th><th>Key</th><th>Value</th></tr></thead>
@@ -237,7 +244,7 @@ npm run build
       </table></div>
     </li>
   </ol>
-  <div class="note"><span class="t">ทำไมใช้ zip</span>โค้ดเป็น Express + TypeScript ที่ bundle รวมไลบรารีไว้ในไฟล์เดียว (<code>index.mjs</code>) วางโค้ดในหน้าเว็บ Lambda ตรงๆ ไม่ได้ ต้องอัปโหลด zip ส่วน AWS SDK มีอยู่แล้วใน runtime จึงไม่ได้ใส่ไว้ใน zip</div>
+  <div class="note"><span class="t">ทำไมใช้ zip</span>โค้ดเป็น Express + TypeScript ที่ bundle รวมไลบรารีไว้ในไฟล์เดียว (<code>index.mjs</code>) วางโค้ดในหน้าเว็บ Lambda ตรงๆ ไม่ได้ ต้องอัปโหลด zip ไฟล์ zip ใน repo สร้างด้วย <code>npm run build</code> ในโฟลเดอร์ <code>aws-deploy/serverless</code> (เฉพาะคนที่แก้โค้ด Lambda ต้อง build ใหม่) ส่วน AWS SDK มีอยู่แล้วใน runtime จึงไม่ได้ใส่ไว้ใน zip</div>
   <div class="shot-slot"><b>ภาพ Console:</b> หน้า Create function ที่เลือก Node.js 22.x และ LabRole · แท็บ Environment variables ที่มี 3 ค่า</div>
 </section>
 
@@ -245,7 +252,7 @@ npm run build
   <h2><span class="num">5</span>สร้างตัวตรวจราคา <span class="svc">AWS Lambda · gamenight-deals</span></h2>
   <ol class="steps">
     <li>ทำซ้ำขั้น 4 แต่ใช้ค่าต่อไปนี้
-      <dl class="kv"><dt>Function name</dt><dd><code>gamenight-deals</code></dd><dt>Runtime / Role</dt><dd>Node.js 22.x / <code>LabRole</code></dd><dt>ไฟล์ zip</dt><dd><code>serverless/dist/deals.zip</code></dd><dt>Memory / Timeout</dt><dd><code>256</code> MB / <code>1 min 0 sec</code></dd><dt>Environment variables</dt><dd>3 ค่าเหมือนขั้น 4</dd></dl>
+      <dl class="kv"><dt>Function name</dt><dd><code>gamenight-deals</code></dd><dt>Runtime / Role</dt><dd>Node.js 22.x / <code>LabRole</code></dd><dt>ไฟล์ zip</dt><dd><code>deals.zip</code> จากขั้น 0</dd><dt>Memory / Timeout</dt><dd><code>256</code> MB / <code>1 min 0 sec</code></dd><dt>Environment variables</dt><dd>3 ค่าเหมือนขั้น 4</dd></dl>
     </li>
   </ol>
   <p>Lambda ตัวนี้ทำงานตามลำดับ: อ่าน <code>config.json</code> จาก S3 → อ่าน Wishlist และราคาเกมจาก DynamoDB → เกมที่ลดถึงเกณฑ์และยังไม่เคยแจ้งที่ส่วนลดนี้ → publish ไป SNS ทีละผู้ใช้พร้อม message attribute <code>email</code> → บันทึกว่าแจ้งแล้ว (กันส่งซ้ำทุกชั่วโมง) → เขียน log ลง S3 <code>logs/</code></p>
@@ -271,33 +278,39 @@ npm run build
 
 <section class="card" id="seed">
   <h2><span class="num">7</span>ใส่ข้อมูลตัวอย่าง <span class="svc">DynamoDB seed</span></h2>
+  <p>Lambda <code>gamenight-api</code> มีโค้ด seed อยู่ในตัวแล้ว สั่งผ่านปุ่ม Test ได้เลย ไม่ต้องรันอะไรในเครื่อง</p>
   <ol class="steps">
-    <li>หน้า Learner Lab คลิก <b>AWS Details</b> → <b>AWS CLI: Show</b> → คัดลอกข้อความทั้งก้อน</li>
-    <li>วางทับทั้งไฟล์ <code>C:\Users\&lt;ชื่อผู้ใช้&gt;\.aws\credentials</code> (Mac/Linux: <code>~/.aws/credentials</code>) แล้วบันทึก คีย์นี้หมดอายุเมื่อ lab หยุด</li>
-    <li>รันคำสั่ง seed ในโฟลเดอร์ <code>serverless</code> ใส่ 24 เกม 12 แนวเกม 6 แพลตฟอร์ม 16 บริษัท และผู้ใช้ตัวอย่าง 2 คน</li>
+    <li>Console → Lambda → <code>gamenight-api</code> → แท็บ <b>Test</b></li>
+    <li>เลือก <b>Create new event</b> → Event name <code>seed</code> → ช่อง Event JSON ลบของเดิมแล้ววางค่าด้านล่าง → <b>Test</b></li>
+    <li>กล่องผลลัพธ์สีเขียวต้องขึ้นข้อความ <b>Seed เสร็จ</b> ใส่ 24 เกม 12 แนวเกม 6 แพลตฟอร์ม 16 บริษัท และผู้ใช้ตัวอย่าง 2 คน</li>
   </ol>
-  <div class="code"><div class="bar"><span>PowerShell · seed</span><button class="copy" type="button">Copy</button></div><pre>cd aws-deploy/serverless
-$env:AWS_REGION="us-east-1"
-npx tsx scripts/seed.ts
-# Seed เสร็จ: 12 แนวเกม, 6 แพลตฟอร์ม, 16 บริษัท, 24 เกม, 2 ผู้ใช้</pre></div>
-  <p class="sub">รันซ้ำได้ ถ้าตารางมีเกมอยู่แล้วจะข้ามให้ ใส่ <code>--force</code> ต่อท้ายถ้าต้องการเขียนทับ บัญชีตัวอย่างคือ <code>demo@gamenight.test</code> และ <code>mai@gamenight.test</code> รหัสผ่านอยู่ใน <code>scripts/seed-data.ts</code></p>
+  <div class="code"><div class="bar"><span>Event JSON</span><button class="copy" type="button">Copy</button></div><pre>{ "seed": true }</pre></div>
+  <p class="sub">กดซ้ำได้ ถ้าตารางมีเกมอยู่แล้วจะข้ามให้ ถ้าต้องการเขียนทับให้ใช้ <code>{ "seed": "force" }</code> บัญชีตัวอย่างคือ <code>demo@gamenight.test</code> และ <code>mai@gamenight.test</code> รหัสผ่านอยู่ในไฟล์ <code>aws-deploy/serverless/src/seed-data.ts</code> บน GitHub</p>
+  <div class="note"><span class="t">คนนอกสั่ง seed ไม่ได้</span>request ที่มาจาก API Gateway ไม่มี key <code>seed</code> ที่ระดับบนสุด คำสั่งนี้จึงใช้ได้เฉพาะคนที่เข้า Lambda Console ได้</div>
 </section>
 
 <section class="card" id="amplify">
   <h2><span class="num">8</span>โฮสต์หน้าเว็บ <span class="svc">AWS Amplify</span></h2>
-  <h3>8.1 Build หน้าเว็บให้ชี้ไปที่ API</h3>
-  <div class="code"><div class="bar"><span>PowerShell · build frontend</span><button class="copy" type="button">Copy</button></div><pre>cd aws-deploy/repo/frontend
-npm install
-$env:VITE_API_URL="https://xxxxxxxxxx.execute-api.us-east-1.amazonaws.com/api"   # Invoke URL จากขั้น 6 + /api
-npm run build</pre></div>
-  <p>เข้าโฟลเดอร์ <code>frontend/dist</code> เลือก<b>ทุกไฟล์ข้างใน</b> (<code>index.html</code>, <code>assets</code>, <code>covers</code>, …) → คลิกขวา → <b>Compress to ZIP file</b> ตั้งชื่อ <code>web.zip</code></p>
-  <div class="note"><span class="t">ต้อง zip ไฟล์ข้างใน dist</span>ถ้า zip ทั้งโฟลเดอร์ dist ไฟล์จะซ้อนอยู่ใน <code>dist/</code> แล้ว Amplify หา <code>index.html</code> ไม่เจอ เปิดเว็บจะขึ้น 404</div>
-  <h3>8.2 Deploy</h3>
+  <p>Amplify ดึงโค้ดจาก fork บน GitHub ไป build เอง (ใช้ไฟล์ <code>amplify.yml</code> ที่อยู่ใน repo) ทุกครั้งที่มีการแก้ใน branch <code>main</code> เว็บจะ deploy ใหม่อัตโนมัติ</p>
+  <h3>8.1 ต่อ Amplify กับ GitHub</h3>
   <ol class="steps">
-    <li>ช่องค้นหาพิมพ์ <code>Amplify</code> → <b>Create new app</b> → เลือก <b>Deploy without Git</b> → <b>Next</b></li>
-    <li>App name <code>gamenight-web</code>, Branch name <code>main</code> → ลากไฟล์ <code>web.zip</code> มาวาง → <b>Save and deploy</b></li>
-    <li>รอจนขึ้น <b>Deployment successfully completed</b> แล้วคัดลอก <b>Domain</b> (หน้าตา <code>https://main.xxxxxxxx.amplifyapp.com</code>)</li>
+    <li>ช่องค้นหาพิมพ์ <code>Amplify</code> → <b>Create new app</b> → เลือก <b>GitHub</b> → <b>Next</b></li>
+    <li>หน้าต่าง GitHub เด้งขึ้นมา → <b>Authorize AWS Amplify</b> → หน้า Install เลือก <b>Only select repositories</b> → เลือก fork ของตัวเอง → <b>Install &amp; Authorize</b></li>
+    <li>Repository เลือก fork ของตัวเอง, Branch <code>main</code></li>
+    <li>ติ๊ก <b>My app is a monorepo</b> → Monorepo root directory พิมพ์ <code>frontend</code> → <b>Next</b></li>
   </ol>
+  <h3>8.2 ตั้งค่า build แล้ว deploy</h3>
+  <ol class="steps">
+    <li>App name <code>gamenight-web</code> หน้านี้ควรขึ้นว่าพบไฟล์ <code>amplify.yml</code> แล้ว ไม่ต้องแก้คำสั่ง build</li>
+    <li>เปิด <b>Advanced settings</b> → Environment variables → <b>Add new</b>
+      <dl class="kv"><dt>Key</dt><dd><code>VITE_API_URL</code></dd><dt>Value</dt><dd>Invoke URL จากขั้น 6 ต่อท้ายด้วย <code>/api</code> เช่น <code>https://xxxxxxxxxx.execute-api.us-east-1.amazonaws.com/api</code></dd></dl>
+    </li>
+    <li>ถ้ามีช่อง <b>Service role</b> ให้เลือก <b>Use an existing service role</b> → <code>LabRole</code> (Learner Lab สร้าง role ใหม่ไม่ได้) ถ้าไม่มี LabRole ในรายการให้เว้นว่าง เว็บแบบ static ไม่ต้องใช้ role</li>
+    <li><b>Next</b> → <b>Save and deploy</b> รอจนทั้ง 3 ขั้น <b>Provision → Build → Deploy</b> เป็นสีเขียว (ประมาณ 3–5 นาที)</li>
+    <li>คัดลอก <b>Domain</b> (หน้าตา <code>https://main.xxxxxxxx.amplifyapp.com</code>) เก็บไว้</li>
+  </ol>
+  <div class="note ok"><span class="t">แก้หน้าเว็บภายหลัง</span>แก้ไฟล์ใน fork บน GitHub (กดรูปดินสอ → Commit changes) Amplify จะ build ใหม่เอง ถ้าเปลี่ยน <code>VITE_API_URL</code> ต้องกด <b>Redeploy this version</b> ในหน้า Deployments เพราะค่านี้ถูกใส่ลงไปตอน build</div>
+  <div class="note"><span class="t">ถ้าต่อ GitHub ไม่ได้</span>บางบัญชี Learner Lab อาจไม่ยอมให้ต่อ GitHub ให้ใช้ <b>Deploy without Git</b> แทน วิธีนี้ต้องมี Node.js 22 ในเครื่อง: clone repo → <code>cd frontend</code> → <code>npm ci</code> → ตั้ง <code>VITE_API_URL</code> → <code>npm run build</code> → zip <b>ไฟล์ข้างใน</b> <code>dist</code> (ไม่ใช่ตัวโฟลเดอร์) แล้วลากไปวางในหน้า Amplify</div>
   <h3>8.3 ตั้ง rewrite ให้รีเฟรชหน้าลึกได้</h3>
   <ol class="steps">
     <li>เมนูซ้ายของแอป → <b>Hosting</b> → <b>Rewrites and redirects</b> → <b>Manage redirects</b></li>
@@ -374,12 +387,13 @@ npm run build</pre></div>
     <tbody>
       <tr><td>1</td><td><code>/api/health</code> ได้ <code>Internal Server Error</code></td><td>Handler ไม่ตรง หรือ runtime ไม่ใช่ Node.js 22</td><td>Runtime settings ตั้ง Handler <code>index.handler</code>, runtime Node.js 22.x</td></tr>
       <tr><td>2</td><td>Lambda ขึ้น <code>AccessDeniedException</code> ตอนอ่าน DynamoDB</td><td>ไม่ได้เลือก LabRole</td><td>Configuration → Permissions → Edit → Existing role <code>LabRole</code></td></tr>
-      <tr><td>3</td><td>หน้าเว็บขึ้นแต่ไม่มีเกม, console มี CORS error</td><td>ตั้ง CORS ใน API Gateway ซ้อน หรือ build ลืมใส่ <code>VITE_API_URL</code></td><td>ลบ CORS ใน API Gateway, build ใหม่โดยใส่ Invoke URL + <code>/api</code></td></tr>
-      <tr><td>4</td><td>เปิดเว็บ Amplify แล้ว 404</td><td>zip ทั้งโฟลเดอร์ dist</td><td>zip เฉพาะไฟล์ข้างใน dist แล้ว deploy ใหม่</td></tr>
-      <tr><td>5</td><td>รีเฟรช <code>/game/1001</code> แล้ว 404</td><td>ยังไม่ได้ตั้ง Rewrites</td><td>ทำขั้น 8.3</td></tr>
-      <tr><td>6</td><td><code>emailsSent: 0</code> ทั้งที่ลดราคาแล้ว</td><td>ยังไม่กดยืนยันอีเมล, ส่วนลดต่ำกว่าเกณฑ์ หรือเคยแจ้งส่วนลดนี้แล้ว</td><td>ดูค่า <code>subscribers</code> ในผลลัพธ์, ลดราคาให้ ≥ 10%, หรือตั้งส่วนลดใหม่ที่มากกว่าเดิม</td></tr>
-      <tr><td>7</td><td>ปุ่มแจ้งเตือนขึ้น "ยังไม่ได้ตั้งค่า SNS topic"</td><td>ไม่มี <code>TOPIC_ARN</code> ใน Lambda gamenight-api</td><td>เพิ่ม environment variable ตามขั้น 4</td></tr>
-      <tr><td>8</td><td>seed ขึ้น <code>ExpiredToken</code></td><td>Lab หยุดแล้วเริ่มใหม่ คีย์เดิมหมดอายุ</td><td>คัดลอก AWS CLI credentials ชุดใหม่จาก AWS Details</td></tr>
+      <tr><td>3</td><td>หน้าเว็บขึ้นแต่ไม่มีเกม, console มี CORS error</td><td>ตั้ง CORS ใน API Gateway ซ้อน หรือไม่ได้ใส่ <code>VITE_API_URL</code> ใน Amplify</td><td>ลบ CORS ใน API Gateway, ใส่ Invoke URL + <code>/api</code> ใน Amplify → Environment variables แล้ว Redeploy</td></tr>
+      <tr><td>4</td><td>Amplify ขั้น Build เป็นสีแดง หรือเปิดเว็บแล้ว 404</td><td>ไม่ได้ตั้ง Monorepo root เป็น <code>frontend</code> (วิธี zip: zip ทั้งโฟลเดอร์ dist)</td><td>App settings → General settings → Edit ตั้ง root <code>frontend</code> แล้ว Redeploy ดู log ได้โดยคลิกขั้น Build</td></tr>
+      <tr><td>5</td><td>ตอนเลือก repository ไม่เห็น fork ของตัวเอง</td><td>ตอน Install ไม่ได้เลือก repo นั้น</td><td>GitHub → Settings → Applications → AWS Amplify → Configure → เพิ่ม fork แล้วกลับมากด Refresh</td></tr>
+      <tr><td>6</td><td>รีเฟรช <code>/game/1001</code> แล้ว 404</td><td>ยังไม่ได้ตั้ง Rewrites</td><td>ทำขั้น 8.3</td></tr>
+      <tr><td>7</td><td><code>emailsSent: 0</code> ทั้งที่ลดราคาแล้ว</td><td>ยังไม่กดยืนยันอีเมล, ส่วนลดต่ำกว่าเกณฑ์ หรือเคยแจ้งส่วนลดนี้แล้ว</td><td>ดูค่า <code>subscribers</code> ในผลลัพธ์, ลดราคาให้ ≥ 10%, หรือตั้งส่วนลดใหม่ที่มากกว่าเดิม</td></tr>
+      <tr><td>8</td><td>ปุ่มแจ้งเตือนขึ้น "ยังไม่ได้ตั้งค่า SNS topic"</td><td>ไม่มี <code>TOPIC_ARN</code> ใน Lambda gamenight-api</td><td>เพิ่ม environment variable ตามขั้น 4</td></tr>
+      <tr><td>9</td><td>Test seed ขึ้น <code>Task timed out</code> หรือ <code>ResourceNotFoundException</code></td><td>Timeout สั้นเกิน หรือสร้างตาราง DynamoDB ไม่ครบ/ชื่อไม่ตรง</td><td>ตั้ง Timeout 30 วินาทีตามขั้น 4 และตรวจชื่อตารางทั้ง 6 ในขั้น 3 แล้วกด Test ใหม่</td></tr>
     </tbody>
   </table></div>
 </section>
@@ -395,6 +409,7 @@ npm run build</pre></div>
     <li><b>SNS</b> → Topics → <code>gamenight-deals</code> → Delete (subscription ถูกลบตาม)</li>
     <li><b>DynamoDB</b> → Tables → ติ๊กทั้ง 6 ตาราง <code>gamenight-*</code> → Delete</li>
     <li><b>S3</b> → bucket <code>gamenight-config-…</code> → <b>Empty</b> ก่อน แล้วจึง <b>Delete</b></li>
+    <li><b>GitHub</b> → Settings → Applications → AWS Amplify → Uninstall และลบ fork ได้ถ้าไม่ใช้แล้ว (ไม่บังคับ)</li>
     <li><b>CloudWatch</b> → Log groups → ลบ <code>/aws/lambda/gamenight-api</code> และ <code>/aws/lambda/gamenight-deals</code> (ไม่บังคับ)</li>
   </ol>
   <div class="code"><div class="bar"><span>ลบทั้งหมดด้วย AWS CLI (ทางเลือก)</span><button class="copy" type="button">Copy</button></div><pre>aws events remove-targets --rule gamenight-hourly --ids deals

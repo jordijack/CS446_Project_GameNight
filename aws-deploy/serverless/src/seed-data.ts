@@ -1,4 +1,4 @@
-// ข้อมูลตัวอย่าง คัดลอกจาก backend/prisma/seed.ts ของ repo เดิม
+// ข้อมูลตัวอย่าง คัดลอกจาก backend/prisma/seed.ts ของ repo เดิม (ใช้โดย src/seed.ts)
 interface SeedGame {
   id: number
   slug: string

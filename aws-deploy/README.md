@@ -27,7 +27,7 @@
   ในหน้า Collection แท็บ Wishlist มีปุ่ม "เปิดแจ้งเตือนลดราคา" → `POST /api/alerts` → SNS subscribe อีเมลผู้ใช้ (ต้องกดยืนยันในอีเมลก่อน)
 
 ## บัญชีตัวอย่าง (จาก seed)
-`demo@gamenight.test` และ `mai@gamenight.test` รหัสผ่านอยู่ใน `serverless/scripts/seed-data.ts`
+`demo@gamenight.test` และ `mai@gamenight.test` รหัสผ่านอยู่ใน `serverless/src/seed-data.ts`
 (อีเมลตัวอย่างรับเมลจริงไม่ได้ ถ้าจะทดสอบแจ้งเตือนให้สมัครด้วยอีเมลจริงของตัวเอง)
 
 ## ทดสอบการแจ้งเตือน
@@ -39,17 +39,17 @@
    ```
 
 ## อัปเดตโค้ด
+คู่มือ `guide/index.html` ใช้แค่เบราว์เซอร์ (ทั้งห้องทำตามได้บนเครื่องใหม่): ดาวน์โหลด zip ของ Lambda จาก `lambda/` บน GitHub, seed ด้วยปุ่ม Test ของ `gamenight-api` (event `{"seed": true}`), และ Amplify ดึงหน้าเว็บจาก fork บน GitHub ผ่าน `amplify.yml` ที่ root ของ repo
+
+แก้โค้ด Lambda แล้วต้อง build ใหม่และ commit zip ใน `lambda/` ด้วย ไม่อย่างนั้นคนที่ทำตามคู่มือจะได้โค้ดเก่า:
 ```bash
-cd serverless && npm run build
+cd serverless && npm run build   # เขียน dist/*.zip และคัดลอกไป ../lambda/
 python -m awscli lambda update-function-code --function-name gamenight-api --zip-file fileb://dist/api.zip
 python -m awscli lambda update-function-code --function-name gamenight-deals --zip-file fileb://dist/deals.zip
 ```
-หน้าเว็บ:
-```bash
-cd repo/frontend && VITE_API_URL=https://qll966s60h.execute-api.us-east-1.amazonaws.com/api npm run build
-python serverless/scripts/deploy-web.py repo/frontend/dist d2yvjayx2tsoci gamenight-config-31df7073
-```
-ใส่ข้อมูลตัวอย่างใหม่: `cd serverless && AWS_REGION=us-east-1 npx tsx scripts/seed.ts --force`
+หน้าเว็บ: push ขึ้น `main` แล้ว Amplify build ใหม่เอง (ตั้ง `VITE_API_URL` ไว้ใน Environment variables ของ Amplify)
+
+ใส่ข้อมูลตัวอย่างใหม่จากเครื่อง: `cd serverless && AWS_REGION=us-east-1 npx tsx scripts/seed.ts --force`
 
 ID ทั้งหมดอยู่ใน `serverless.env` · ระบบเดิม (EC2 + ALB + RDS) ลบแล้ว ไฟล์เก่าเก็บไว้ใน `old-ec2/`
 

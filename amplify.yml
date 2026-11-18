@@ -1,0 +1,22 @@
+# AWS Amplify Hosting: build หน้าเว็บจากโฟลเดอร์ frontend/ เมื่อ push ขึ้น GitHub
+# ต้องตั้ง Environment variable VITE_API_URL = <Invoke URL ของ API Gateway>/api ในหน้า Amplify
+# และตั้ง monorepo root เป็น frontend (ดูขั้น 8 ใน aws-deploy/guide/index.html)
+version: 1
+applications:
+  - appRoot: frontend
+    frontend:
+      phases:
+        preBuild:
+          commands:
+            - nvm install 22 && nvm use 22
+            - npm ci
+        build:
+          commands:
+            - npm run build
+      artifacts:
+        baseDirectory: dist
+        files:
+          - '**/*'
+      cache:
+        paths:
+          - node_modules/**/*
